@@ -1,0 +1,10 @@
+procs:
+  docker:
+    shell: "docker compose up"
+    stop: "SIGINT"
+
+  api:
+    shell: "source .env && cd api && bun dev"
+
+  web:
+    shell: "cd web && bun dev"

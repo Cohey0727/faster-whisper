@@ -1,0 +1,5 @@
+{
+  "name": "avatar-faster-whisper",
+  "private": true,
+  "workspaces": ["api", "web"]
+}
