@@ -1,5 +1,5 @@
-import { style } from "@vanilla-extract/css"
-import { theme, mediaquery } from "../../../configs"
+import { style } from "@vanilla-extract/css";
+import { theme, mediaquery } from "../../../configs";
 
 export const layout = style({
   display: "flex",
@@ -12,7 +12,7 @@ export const layout = style({
       flexDirection: "row",
     },
   },
-})
+});
 
 // DOM order: chat(0) → handle(1) → avatar(2)
 // SP visual:  avatar(top) → handle → chat(bottom)
@@ -28,7 +28,7 @@ export const avatarArea = style({
       order: 0,
     },
   },
-})
+});
 
 export const chatArea = style({
   order: 1,
@@ -43,7 +43,7 @@ export const chatArea = style({
       flex: "none",
     },
   },
-})
+});
 
 export const handle = style({
   order: 0,
@@ -74,7 +74,7 @@ export const handle = style({
       borderRight: `1px solid ${theme.colors.divider}`,
     },
   },
-})
+});
 
 export const handleKnob = style({
   // SP: horizontal knob
@@ -91,7 +91,7 @@ export const handleKnob = style({
       height: "40px",
     },
   },
-})
+});
 
 export const chatContent = style({
   flex: 1,
@@ -99,11 +99,26 @@ export const chatContent = style({
   display: "flex",
   flexDirection: "column",
   justifyContent: "flex-end",
-})
+});
 
-export const chatFooter = style({
+export const chatActions = style({
   display: "flex",
-  justifyContent: "center",
-  paddingTop: "8px",
-  paddingBottom: "16px",
-})
+  flexDirection: "column",
+  alignItems: "center",
+  gap: theme.space.xl,
+  padding: `${theme.space.sm} ${theme.space.md}`,
+  paddingBottom: theme.space.lg,
+  "@media": {
+    [mediaquery.md]: {
+      paddingLeft: theme.space.lg,
+      paddingRight: theme.space.lg,
+    },
+  },
+});
+
+export const chatFooterInputRow = style({
+  display: "flex",
+  alignItems: "center",
+  gap: theme.space.sm,
+  width: "100%",
+});

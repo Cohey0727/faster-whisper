@@ -1,5 +1,8 @@
 {
   "name": "avatar-faster-whisper",
   "private": true,
-  "workspaces": ["api", "web"]
+  "workspaces": ["api", "web"],
+  "devDependencies": {
+    "playwright": "^1.58.2"
+  }
 }

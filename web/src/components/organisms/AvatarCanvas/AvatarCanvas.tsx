@@ -10,9 +10,10 @@ interface AvatarCanvasProps {
   readonly visemes: readonly Viseme[]
   readonly audioBase64: string
   readonly action: AvatarAction
+  readonly modelUrl: string
 }
 
-export function AvatarCanvas({ visemes, audioBase64, action }: AvatarCanvasProps) {
+export function AvatarCanvas({ visemes, audioBase64, action, modelUrl }: AvatarCanvasProps) {
   return (
     <div className={styles.canvasWrapper}>
       <Canvas>
@@ -20,7 +21,7 @@ export function AvatarCanvas({ visemes, audioBase64, action }: AvatarCanvasProps
         <ambientLight intensity={0.6} />
         <directionalLight position={[1, 2, 1]} intensity={0.8} />
         <Suspense fallback={null}>
-          <AvatarModel visemes={visemes} audioBase64={audioBase64} action={action} />
+          <AvatarModel visemes={visemes} audioBase64={audioBase64} action={action} modelUrl={modelUrl} />
         </Suspense>
       </Canvas>
     </div>

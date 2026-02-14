@@ -17,11 +17,13 @@ export interface ChatMessage {
 }
 
 interface UseChatResult {
-  readonly sendAudio: (audioBlob: Blob) => Promise<void>
+  readonly sendAudio: (audioBlob: Blob, speakerId?: number) => Promise<void>
+  readonly sendText: (text: string, speakerId?: number) => Promise<void>
   readonly startLiveTranscription: (getBlob: () => Blob | null) => void
   readonly stopLiveTranscription: () => void
   readonly messages: readonly ChatMessage[]
   readonly liveTranscript: string
+  readonly pendingTranscript: string
   readonly visemes: readonly Viseme[]
   readonly audioBase64: string
   readonly isLoading: boolean
@@ -50,11 +52,13 @@ const LIVE_TRANSCRIPTION_POLL_MS = 1000
 export function useChat(): UseChatResult {
   const [messages, setMessages] = useState<readonly ChatMessage[]>([])
   const [liveTranscript, setLiveTranscript] = useState("")
+  const [pendingTranscript, setPendingTranscript] = useState("")
   const [visemes, setVisemes] = useState<readonly Viseme[]>([])
   const [audioBase64, setAudioBase64] = useState("")
   const [action, setAction] = useState<AvatarAction>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const liveTranscriptRef = useRef("")
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const abortRef = useRef<AbortController | null>(null)
   const isLiveRef = useRef(false)
@@ -125,6 +129,7 @@ export function useChat(): UseChatResult {
           const data: TranscribeApiResponse = await res.json()
           if (data.transcript && isLiveRef.current) {
             setLiveTranscript(data.transcript)
+            liveTranscriptRef.current = data.transcript
           }
         } catch {
           /* aborted or network error -- ignore during live transcription */
@@ -134,14 +139,31 @@ export function useChat(): UseChatResult {
     [stopLiveTranscription],
   )
 
-  const sendAudio = useCallback(async (audioBlob: Blob) => {
+  const handleChatResponse = useCallback((data: ChatApiResponse) => {
+    setPendingTranscript("")
+    setMessages((prev) => [
+      ...prev,
+      { role: "user", content: data.transcript },
+      { role: "assistant", content: data.response },
+    ])
+    setVisemes(data.visemes)
+    setAudioBase64(data.audioBase64)
+    setAction(data.action)
+  }, [])
+
+  const sendAudio = useCallback(async (audioBlob: Blob, speakerId?: number) => {
+    setPendingTranscript(liveTranscriptRef.current)
+    setLiveTranscript("")
+    liveTranscriptRef.current = ""
     setIsLoading(true)
     setError(null)
-    setLiveTranscript("")
 
     try {
       const formData = new FormData()
       formData.append("audio", audioBlob, "recording.webm")
+      if (speakerId !== undefined) {
+        formData.append("speakerId", String(speakerId))
+      }
 
       const res = await fetch("/api/chat", {
         method: "POST",
@@ -153,30 +175,56 @@ export function useChat(): UseChatResult {
       }
 
       const data: ChatApiResponse = await res.json()
-
-      setMessages((prev) => [
-        ...prev,
-        { role: "user", content: data.transcript },
-        { role: "assistant", content: data.response },
-      ])
-      setVisemes(data.visemes)
-      setAudioBase64(data.audioBase64)
-      setAction(data.action)
+      handleChatResponse(data)
     } catch (err) {
+      setPendingTranscript("")
       const message =
         err instanceof Error ? err.message : "Failed to send audio"
       setError(message)
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [handleChatResponse])
+
+  const sendText = useCallback(async (text: string, speakerId?: number) => {
+    const trimmed = text.trim()
+    if (trimmed === "") return
+
+    setPendingTranscript(trimmed)
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      const res = await fetch("/api/chat/text", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: trimmed, speakerId }),
+      })
+
+      if (!res.ok) {
+        throw new Error(`Server error: ${res.status}`)
+      }
+
+      const data: ChatApiResponse = await res.json()
+      handleChatResponse(data)
+    } catch (err) {
+      setPendingTranscript("")
+      const message =
+        err instanceof Error ? err.message : "Failed to send message"
+      setError(message)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [handleChatResponse])
 
   return {
     sendAudio,
+    sendText,
     startLiveTranscription,
     stopLiveTranscription,
     messages,
     liveTranscript,
+    pendingTranscript,
     visemes,
     audioBase64,
     isLoading,

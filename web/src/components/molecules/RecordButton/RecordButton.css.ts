@@ -4,22 +4,23 @@ import { pulse } from "../../../styles/global.css"
 
 export const container = style({
   display: "flex",
-  flexDirection: "column",
   alignItems: "center",
-  gap: theme.space.sm,
+  gap: theme.space.xs,
+  flexShrink: 0,
 })
 
 export const button = style({
-  width: "72px",
-  height: "72px",
+  width: "44px",
+  height: "44px",
   borderRadius: theme.borderRadius.full,
-  border: `3px solid ${theme.colors.buttonBorder}`,
+  border: `2px solid ${theme.colors.buttonBorder}`,
   cursor: "pointer",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
   transition: "transform 0.15s ease",
   backgroundColor: theme.colors.buttonBg,
+  flexShrink: 0,
   ":disabled": {
     opacity: 0.5,
     cursor: "default",

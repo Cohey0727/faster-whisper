@@ -109,57 +109,30 @@ export const messageRow = style({
 export const messageRowUser = style([
   messageRow,
   {
-    flexDirection: "row-reverse",
+    justifyContent: "flex-end",
   },
 ])
 
 export const messageRowAi = style([
   messageRow,
   {
-    flexDirection: "row",
+    justifyContent: "flex-start",
   },
 ])
 
-/* ── Avatar Icon ── */
+/* ── Bubble Wrapper ── */
 
-export const avatarIcon = style({
-  width: "28px",
-  height: "28px",
-  borderRadius: theme.borderRadius.full,
+export const bubbleWrapperUser = style({
   display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  fontSize: "13px",
-  flexShrink: 0,
-  lineHeight: 1,
-  marginBottom: "2px",
-  "@media": {
-    [mediaquery.md]: {
-      width: "32px",
-      height: "32px",
-      fontSize: "14px",
-    },
-  },
+  flexDirection: "column",
+  alignItems: "flex-end",
 })
 
-export const avatarIconAi = style([
-  avatarIcon,
-  {
-    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-  },
-])
-
-export const avatarIconUser = style([
-  avatarIcon,
-  {
-    background: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
-  },
-])
-
-export const avatarIconHidden = style([
-  avatarIcon,
-  { visibility: "hidden" },
-])
+export const bubbleWrapperAi = style({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "flex-start",
+})
 
 /* ── Bubble ── */
 
@@ -240,15 +213,6 @@ export const timestamp = style({
   paddingRight: "2px",
 })
 
-export const timestampRight = style([
-  timestamp,
-  { textAlign: "right" },
-])
-
-export const timestampLeft = style([
-  timestamp,
-  { textAlign: "left" },
-])
 
 /* ── Typing Indicator ── */
 

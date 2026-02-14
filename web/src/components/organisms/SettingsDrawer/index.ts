@@ -1,2 +1,1 @@
-export { AvatarCanvas } from "./AvatarCanvas"
 export { SettingsDrawer } from "./SettingsDrawer"

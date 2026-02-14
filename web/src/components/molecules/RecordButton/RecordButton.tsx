@@ -63,15 +63,10 @@ export function RecordButton({
         onPointerLeave={handlePointerUp}
         disabled={disabled}
         aria-label={isRecording ? "Recording..." : "Hold to talk"}
+        title="Hold to talk"
       >
         <MicIcon recording={isRecording} />
       </button>
-      {!isRecording && !error && (
-        <span className={styles.hint}>Hold to talk</span>
-      )}
-      {isRecording && (
-        <span className={styles.hint}>Release to send</span>
-      )}
       {error && <span className={styles.errorMsg}>{error}</span>}
     </div>
   )

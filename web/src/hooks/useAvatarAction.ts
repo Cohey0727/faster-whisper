@@ -18,6 +18,7 @@ export function useAvatarAction({ vrm, action }: UseAvatarActionParams): void {
   const startTimeRef = useRef(0)
   const currentActionRef = useRef<NonNullable<AvatarAction> | null>(null)
   const prevActionRef = useRef<AvatarAction>(null)
+  const variationRef = useRef(0)
 
   const startAction = useCallback(
     (newAction: NonNullable<AvatarAction>) => {
@@ -39,6 +40,7 @@ export function useAvatarAction({ vrm, action }: UseAvatarActionParams): void {
       currentActionRef.current = newAction
       isPlayingRef.current = true
       startTimeRef.current = performance.now()
+      variationRef.current = Math.random()
     },
     [vrm],
   )
@@ -58,7 +60,7 @@ export function useAvatarAction({ vrm, action }: UseAvatarActionParams): void {
     const progress = Math.min(elapsed / config.duration, 1)
 
     const animateFn = ACTION_ANIMATIONS[currentActionRef.current]
-    animateFn(vrm, progress)
+    animateFn(vrm, progress, variationRef.current)
 
     if (progress >= 1) {
       restoreBones(vrm, currentActionRef.current)

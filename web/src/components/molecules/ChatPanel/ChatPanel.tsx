@@ -5,6 +5,7 @@ import * as styles from "./ChatPanel.css"
 interface ChatPanelProps {
   readonly messages: readonly ChatMessage[]
   readonly liveTranscript: string
+  readonly pendingTranscript: string
   readonly isLoading: boolean
   readonly error: string | null
 }
@@ -63,7 +64,6 @@ function isLastInGroup(
 function TypingIndicator() {
   return (
     <div className={styles.typingRow} role="status" aria-label="AI is typing">
-      <div className={styles.avatarIconAi} aria-hidden="true">AI</div>
       <div className={styles.typingBubble} aria-hidden="true">
         <span className={styles.typingDot} />
         <span className={styles.typingDot} />
@@ -110,12 +110,10 @@ function DateSeparator({ dateStr }: { readonly dateStr: string }) {
 function MessageBubble({
   message,
   grouped,
-  showAvatar,
   showTimestamp,
 }: {
   readonly message: ChatMessage
   readonly grouped: boolean
-  readonly showAvatar: boolean
   readonly showTimestamp: boolean
 }) {
   const isUser = message.role === "user"
@@ -130,36 +128,28 @@ function MessageBubble({
       ? styles.aiBubbleGrouped
       : styles.aiBubble
 
-  const avatarClass = isUser ? styles.avatarIconUser : styles.avatarIconAi
+  const wrapperClass = isUser
+    ? styles.bubbleWrapperUser
+    : styles.bubbleWrapperAi
 
   return (
-    <>
-      <div className={rowClass}>
-        {showAvatar ? (
-          <div className={avatarClass}>{isUser ? "You" : "AI"}</div>
-        ) : (
-          <div className={styles.avatarIconHidden} />
+    <div className={rowClass}>
+      <div className={wrapperClass}>
+        <p className={bubbleClass}>{message.content}</p>
+        {showTimestamp && message.createdAt && (
+          <span className={styles.timestamp}>
+            {formatTime(message.createdAt)}
+          </span>
         )}
-        <div>
-          <p className={bubbleClass}>{message.content}</p>
-          {showTimestamp && message.createdAt && (
-            <div
-              className={
-                isUser ? styles.timestampRight : styles.timestampLeft
-              }
-            >
-              {formatTime(message.createdAt)}
-            </div>
-          )}
-        </div>
       </div>
-    </>
+    </div>
   )
 }
 
 export function ChatPanel({
   messages,
   liveTranscript,
+  pendingTranscript,
   isLoading,
   error,
 }: ChatPanelProps) {
@@ -167,7 +157,7 @@ export function ChatPanel({
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [messages, liveTranscript, isLoading])
+  }, [messages, liveTranscript, pendingTranscript, isLoading])
 
   const dateSeparatorIndices = useMemo(() => {
     const indices = new Set<number>()
@@ -182,7 +172,7 @@ export function ChatPanel({
     return indices
   }, [messages])
 
-  if (messages.length === 0 && !liveTranscript && !isLoading && !error) {
+  if (messages.length === 0 && !liveTranscript && !pendingTranscript && !isLoading && !error) {
     return <EmptyState />
   }
 
@@ -203,17 +193,21 @@ export function ChatPanel({
             <MessageBubble
               message={msg}
               grouped={grouped}
-              showAvatar={lastInGroup}
               showTimestamp={lastInGroup}
             />
           </div>
         )
       })}
 
-      {liveTranscript && (
+      {liveTranscript && !pendingTranscript && (
         <div className={styles.messageRowUser}>
-          <div className={styles.avatarIconUser}>You</div>
           <p className={styles.userBubbleLive}>{liveTranscript}</p>
+        </div>
+      )}
+
+      {pendingTranscript && (
+        <div className={styles.messageRowUser}>
+          <p className={styles.userBubble}>{pendingTranscript}</p>
         </div>
       )}
 

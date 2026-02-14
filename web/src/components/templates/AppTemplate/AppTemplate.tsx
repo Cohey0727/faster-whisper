@@ -1,71 +1,78 @@
-import { type ReactNode, useCallback, useEffect, useRef, useState } from "react"
-import { useMediaQuery } from "../../../hooks/useMediaQuery"
-import * as styles from "./AppTemplate.css"
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { useMediaQuery } from "../../../hooks/useMediaQuery";
+import * as styles from "./AppTemplate.css";
 
 interface AppTemplateProps {
-  readonly chatContent: ReactNode
-  readonly recordButton: ReactNode
-  readonly avatar: ReactNode
+  readonly chatContent: ReactNode;
+  readonly chatInput: ReactNode;
+  readonly recordButton: ReactNode;
+  readonly avatar: ReactNode;
+  readonly settingsButton?: ReactNode;
 }
 
-const DEFAULT_PC_WIDTH = 0.4
-const DEFAULT_SP_HEIGHT = 0.45
-const MIN_RATIO = 0.2
-const MAX_RATIO = 0.7
+const DEFAULT_PC_WIDTH = 0.4;
+const DEFAULT_SP_HEIGHT = 0.45;
+const MIN_RATIO = 0.2;
+const MAX_RATIO = 0.7;
 
 export function AppTemplate({
   chatContent,
+  chatInput,
   recordButton,
   avatar,
+  settingsButton,
 }: AppTemplateProps) {
-  const isDesktop = useMediaQuery("md")
-  const layoutRef = useRef<HTMLDivElement>(null)
+  const isDesktop = useMediaQuery("md");
+  const layoutRef = useRef<HTMLDivElement>(null);
   const [chatRatio, setChatRatio] = useState(
     isDesktop ? DEFAULT_PC_WIDTH : DEFAULT_SP_HEIGHT,
-  )
-  const draggingRef = useRef(false)
+  );
+  const draggingRef = useRef(false);
 
-  const handlePointerDown = useCallback(
-    (e: React.PointerEvent) => {
-      e.preventDefault()
-      draggingRef.current = true
-      ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
-    },
-    [],
-  )
+  const handlePointerDown = useCallback((e: React.PointerEvent) => {
+    e.preventDefault();
+    draggingRef.current = true;
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  }, []);
 
   const handlePointerMove = useCallback(
     (e: React.PointerEvent) => {
-      if (!draggingRef.current || !layoutRef.current) return
+      if (!draggingRef.current || !layoutRef.current) return;
 
-      const rect = layoutRef.current.getBoundingClientRect()
+      const rect = layoutRef.current.getBoundingClientRect();
 
       // PC: chatArea is left, so ratio = x position from left
       // SP: chatArea is bottom, so ratio = distance from bottom
       const ratio = isDesktop
         ? (e.clientX - rect.left) / rect.width
-        : 1 - (e.clientY - rect.top) / rect.height
+        : 1 - (e.clientY - rect.top) / rect.height;
 
-      setChatRatio(Math.min(MAX_RATIO, Math.max(MIN_RATIO, ratio)))
+      setChatRatio(Math.min(MAX_RATIO, Math.max(MIN_RATIO, ratio)));
     },
     [isDesktop],
-  )
+  );
 
   const handlePointerUp = useCallback(() => {
-    draggingRef.current = false
-  }, [])
+    draggingRef.current = false;
+  }, []);
 
   useEffect(() => {
-    setChatRatio(isDesktop ? DEFAULT_PC_WIDTH : DEFAULT_SP_HEIGHT)
-  }, [isDesktop])
+    setChatRatio(isDesktop ? DEFAULT_PC_WIDTH : DEFAULT_SP_HEIGHT);
+  }, [isDesktop]);
 
   const chatSize = isDesktop
     ? { width: `${chatRatio * 100}%` }
-    : { height: `${chatRatio * 100}%` }
+    : { height: `${chatRatio * 100}%` };
 
   const avatarSize = isDesktop
     ? { width: `${(1 - chatRatio) * 100}%` }
-    : { height: `${(1 - chatRatio) * 100}%` }
+    : { height: `${(1 - chatRatio) * 100}%` };
 
   return (
     <div ref={layoutRef} className={styles.layout}>
@@ -73,7 +80,10 @@ export function AppTemplate({
       {/* SP visual order via CSS: avatar(-1) → handle(0) → chat(1) */}
       <div className={styles.chatArea} style={chatSize}>
         <div className={styles.chatContent}>{chatContent}</div>
-        <div className={styles.chatFooter}>{recordButton}</div>
+        <div className={styles.chatActions}>
+          {recordButton}
+          <div className={styles.chatFooterInputRow}>{chatInput}</div>
+        </div>
       </div>
       <div
         className={styles.handle}
@@ -85,8 +95,9 @@ export function AppTemplate({
         <div className={styles.handleKnob} />
       </div>
       <div className={styles.avatarArea} style={avatarSize}>
+        {settingsButton}
         {avatar}
       </div>
     </div>
-  )
+  );
 }
