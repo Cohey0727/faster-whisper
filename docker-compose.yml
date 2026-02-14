@@ -14,7 +14,7 @@ services:
       - "50847:50021"
 
   db:
-    image: postgres:18
+    image: postgres:16
     ports:
       - "5847:5432"
     environment:
