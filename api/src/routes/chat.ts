@@ -5,6 +5,7 @@ import { transcribeAudio } from "../services/whisper.js"
 import { generateResponse } from "../services/llm.js"
 import { textToSpeech } from "../services/voicevox.js"
 import { extractVisemes } from "../services/viseme.js"
+import { saveMessage, getMessagesForLLM } from "../services/messages.js"
 
 function arrayBufferToBase64(buffer: ArrayBuffer): string {
   const bytes = new Uint8Array(buffer)
@@ -28,24 +29,31 @@ export function createChatRoute(config: AppConfig): Hono {
       }
 
       const transcript = await transcribeAudio(audioFile, config)
-      const response = await generateResponse(transcript, config)
-      const { audioBuffer, audioQuery } = await textToSpeech(response, config)
+      const history = await getMessagesForLLM()
+      const llmResponse = await generateResponse(transcript, config, history)
+      const { audioBuffer, audioQuery } = await textToSpeech(
+        llmResponse.text,
+        config,
+      )
+
+      await saveMessage("user", transcript)
+      await saveMessage("assistant", llmResponse.text)
 
       const audioBase64 = arrayBufferToBase64(audioBuffer)
       const visemes = extractVisemes(audioQuery)
 
       const result: ChatResponse = {
         transcript,
-        response,
+        response: llmResponse.text,
         audioBase64,
         visemes,
+        action: llmResponse.action,
       }
 
       return c.json(result)
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Unknown error occurred"
-      return c.json({ error: message }, 500)
+      console.error("Chat endpoint failed:", error)
+      return c.json({ error: "An internal error occurred" }, 500)
     }
   })
 

@@ -12,8 +12,8 @@ fi
 
 mkdir -p "${MODEL_DIR}"
 
-echo "Downloading sample VRM model..."
+echo "Downloading VRoid sample avatar (AvatarSample_B.vrm)..."
 curl -L -o "${MODEL_PATH}" \
-  "https://github.com/pixiv/three-vrm/raw/dev/packages/three-vrm/examples/models/VRM1_Constraint_Twist_Sample.vrm"
+  "https://raw.githubusercontent.com/madjin/vrm-samples/master/vroid/stable/AvatarSample_B.vrm"
 
 echo "Model downloaded to ${MODEL_PATH}"

@@ -1,28 +1,21 @@
 import { useCallback } from "react"
-import { AvatarCanvas } from "./components/AvatarCanvas"
-import { ChatPanel } from "./components/ChatPanel"
-import { RecordButton } from "./components/RecordButton"
+import { AppTemplate } from "./components/templates"
+import { AvatarCanvas } from "./components/organisms"
+import { ChatPanel, RecordButton } from "./components/molecules"
 import { useChat } from "./hooks/useChat"
-
-const globalStyle = `
-  @keyframes pulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(229, 62, 62, 0.5); }
-    50% { box-shadow: 0 0 0 12px rgba(229, 62, 62, 0); }
-  }
-`
 
 export function App() {
   const {
     sendAudio,
     startLiveTranscription,
     stopLiveTranscription,
-    transcript,
+    messages,
     liveTranscript,
-    response,
     visemes,
     audioBase64,
     isLoading,
     error,
+    action,
   } = useChat()
 
   const handleRecorded = useCallback(
@@ -33,22 +26,24 @@ export function App() {
   )
 
   return (
-    <>
-      <style>{globalStyle}</style>
-      <AvatarCanvas visemes={visemes} audioBase64={audioBase64} />
-      <ChatPanel
-        transcript={transcript}
-        liveTranscript={liveTranscript}
-        response={response}
-        isLoading={isLoading}
-        error={error}
-      />
-      <RecordButton
-        onRecorded={handleRecorded}
-        onRecordingStart={startLiveTranscription}
-        onRecordingStop={stopLiveTranscription}
-        disabled={isLoading}
-      />
-    </>
+    <AppTemplate
+      avatar={<AvatarCanvas visemes={visemes} audioBase64={audioBase64} action={action} />}
+      chatContent={
+        <ChatPanel
+          messages={messages}
+          liveTranscript={liveTranscript}
+          isLoading={isLoading}
+          error={error}
+        />
+      }
+      recordButton={
+        <RecordButton
+          onRecorded={handleRecorded}
+          onRecordingStart={startLiveTranscription}
+          onRecordingStop={stopLiveTranscription}
+          disabled={isLoading}
+        />
+      }
+    />
   )
 }

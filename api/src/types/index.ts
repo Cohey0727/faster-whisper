@@ -1,3 +1,12 @@
+export type AvatarAction =
+  | "jump"
+  | "spin"
+  | "wave"
+  | "nod"
+  | "bow"
+  | "shake"
+  | null
+
 export interface Viseme {
   readonly time: number
   readonly duration: number
@@ -9,6 +18,7 @@ export interface ChatResponse {
   readonly response: string
   readonly audioBase64: string
   readonly visemes: readonly Viseme[]
+  readonly action: AvatarAction
 }
 
 export interface VoicevoxMora {

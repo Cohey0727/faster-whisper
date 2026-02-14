@@ -1,0 +1,1 @@
+export { AvatarCanvas } from "./AvatarCanvas"

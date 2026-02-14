@@ -19,6 +19,25 @@ function smoothWeight(t: number): number {
   return Math.sin(t * Math.PI)
 }
 
+function validateExpressions(vrm: VRM): boolean {
+  const manager = vrm.expressionManager
+  if (!manager) {
+    console.error("VRM has no expressionManager — lip sync disabled")
+    return false
+  }
+
+  const missing = ALL_VOWEL_EXPRESSIONS.filter(
+    (name) => manager.getExpression(name) == null,
+  )
+  if (missing.length > 0) {
+    console.error(
+      `VRM missing expressions: ${missing.join(", ")} — lip sync may not work`,
+    )
+  }
+
+  return missing.length < ALL_VOWEL_EXPRESSIONS.length
+}
+
 export function useLipSync({
   vrm,
   audioBase64,
@@ -42,6 +61,10 @@ export function useLipSync({
 
   useEffect(() => {
     if (!vrm || !audioBase64 || visemes.length === 0) {
+      return
+    }
+
+    if (!validateExpressions(vrm)) {
       return
     }
 
@@ -104,7 +127,8 @@ export function useLipSync({
         }
 
         animationFrameRef.current = requestAnimationFrame(animate)
-      } catch {
+      } catch (error) {
+        console.error("Lip sync audio playback failed:", error)
         cleanup()
       }
     }
