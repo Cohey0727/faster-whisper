@@ -122,22 +122,30 @@ export const messageRowAi = style([
 
 /* ── Bubble Wrapper ── */
 
-export const bubbleWrapperUser = style({
+const bubbleWrapper = style({
   display: "flex",
   flexDirection: "column",
-  alignItems: "flex-end",
+  maxWidth: "78%",
+  "@media": {
+    [mediaquery.md]: {
+      maxWidth: "72%",
+    },
+  },
 })
 
-export const bubbleWrapperAi = style({
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "flex-start",
-})
+export const bubbleWrapperUser = style([
+  bubbleWrapper,
+  { alignItems: "flex-end" },
+])
+
+export const bubbleWrapperAi = style([
+  bubbleWrapper,
+  { alignItems: "flex-start" },
+])
 
 /* ── Bubble ── */
 
 const bubbleBase = style({
-  maxWidth: "78%",
   padding: "10px 14px",
   fontSize: theme.fontSizes.md,
   lineHeight: "1.55",
@@ -145,7 +153,6 @@ const bubbleBase = style({
   wordBreak: "break-word",
   "@media": {
     [mediaquery.md]: {
-      maxWidth: "72%",
       fontSize: theme.fontSizes.lg,
       padding: "10px 16px",
     },

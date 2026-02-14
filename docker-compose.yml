@@ -23,10 +23,5 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql
 
-  redis:
-    image: redis:8-alpine
-    ports:
-      - "6847:6379"
-
 volumes:
   pgdata:

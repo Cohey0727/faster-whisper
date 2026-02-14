@@ -134,6 +134,45 @@ export function applyRotation(
 
 export { ACTION_ANIMATIONS } from "./avatarAnimations"
 
+/**
+ * Apply a natural rest pose to a VRM model loaded in T-pose.
+ * Rotates the arms down so the avatar stands naturally.
+ * Must be called BEFORE any `saveInitialState` calls so that
+ * the rest pose becomes the "initial" state for animations.
+ */
+export function applyRestPose(vrm: VRM): void {
+  const leftUpperArm = getBone(vrm, "leftUpperArm")
+  const rightUpperArm = getBone(vrm, "rightUpperArm")
+  const leftLowerArm = getBone(vrm, "leftLowerArm")
+  const rightLowerArm = getBone(vrm, "rightLowerArm")
+
+  // Rotate upper arms ~70 degrees down from T-pose toward body
+  const upperArmAngle = 1.2
+  if (leftUpperArm) {
+    leftUpperArm.quaternion.multiply(
+      new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), upperArmAngle),
+    )
+  }
+  if (rightUpperArm) {
+    rightUpperArm.quaternion.multiply(
+      new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), -upperArmAngle),
+    )
+  }
+
+  // Slight bend in lower arms for a natural look
+  const lowerArmBend = 0.15
+  if (leftLowerArm) {
+    leftLowerArm.quaternion.multiply(
+      new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -lowerArmBend),
+    )
+  }
+  if (rightLowerArm) {
+    rightLowerArm.quaternion.multiply(
+      new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), lowerArmBend),
+    )
+  }
+}
+
 export function restoreBones(vrm: VRM, action: NonNullable<AvatarAction>): void {
   const config = ACTION_CONFIGS[action]
   for (const boneName of config.bones) {

@@ -3,7 +3,7 @@ import { useFrame } from "@react-three/fiber"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js"
 import { VRMLoaderPlugin, VRM } from "@pixiv/three-vrm"
 import type { Viseme } from "../../../hooks/useChat"
-import type { AvatarAction } from "../../../lib/avatarActions"
+import { type AvatarAction, applyRestPose } from "../../../lib/avatarActions"
 import { useLipSync } from "../../../hooks/useLipSync"
 import { useAvatarAction } from "../../../hooks/useAvatarAction"
 
@@ -53,6 +53,7 @@ export function AvatarModel({ visemes, audioBase64, action, modelUrl }: AvatarMo
 
         const loadedVrm = gltf.userData.vrm as VRM
         loadedVrm.scene.rotation.y = Math.PI
+        applyRestPose(loadedVrm)
 
         setVrm((prev) => {
           if (prev) {
