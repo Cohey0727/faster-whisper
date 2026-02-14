@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 export interface Viseme {
   readonly time: number
@@ -30,6 +30,8 @@ interface TranscribeApiResponse {
   readonly transcript: string
 }
 
+const LIVE_TRANSCRIPTION_POLL_MS = 1000
+
 export function useChat(): UseChatResult {
   const [transcript, setTranscript] = useState("")
   const [liveTranscript, setLiveTranscript] = useState("")
@@ -40,8 +42,10 @@ export function useChat(): UseChatResult {
   const [error, setError] = useState<string | null>(null)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const abortRef = useRef<AbortController | null>(null)
+  const isLiveRef = useRef(false)
 
   const stopLiveTranscription = useCallback(() => {
+    isLiveRef.current = false
     if (intervalRef.current !== null) {
       clearInterval(intervalRef.current)
       intervalRef.current = null
@@ -52,14 +56,27 @@ export function useChat(): UseChatResult {
     }
   }, [])
 
+  useEffect(() => {
+    return () => {
+      stopLiveTranscription()
+    }
+  }, [stopLiveTranscription])
+
   const startLiveTranscription = useCallback(
     (getBlob: () => Blob | null) => {
       stopLiveTranscription()
       setLiveTranscript("")
+      isLiveRef.current = true
 
       intervalRef.current = setInterval(async () => {
+        if (!isLiveRef.current) return
+
         const blob = getBlob()
         if (!blob || blob.size === 0) return
+
+        if (abortRef.current) {
+          abortRef.current.abort()
+        }
 
         const controller = new AbortController()
         abortRef.current = controller
@@ -74,16 +91,16 @@ export function useChat(): UseChatResult {
             signal: controller.signal,
           })
 
-          if (!res.ok) return
+          if (!res.ok || !isLiveRef.current) return
 
           const data: TranscribeApiResponse = await res.json()
-          if (data.transcript) {
+          if (data.transcript && isLiveRef.current) {
             setLiveTranscript(data.transcript)
           }
         } catch {
           /* aborted or network error — ignore during live transcription */
         }
-      }, 1000)
+      }, LIVE_TRANSCRIPTION_POLL_MS)
     },
     [stopLiveTranscription],
   )

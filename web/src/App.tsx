@@ -32,17 +32,6 @@ export function App() {
     [sendAudio],
   )
 
-  const handleRecordingStart = useCallback(
-    (getBlob: () => Blob | null) => {
-      startLiveTranscription(getBlob)
-    },
-    [startLiveTranscription],
-  )
-
-  const handleRecordingStop = useCallback(() => {
-    stopLiveTranscription()
-  }, [stopLiveTranscription])
-
   return (
     <>
       <style>{globalStyle}</style>
@@ -56,8 +45,8 @@ export function App() {
       />
       <RecordButton
         onRecorded={handleRecorded}
-        onRecordingStart={handleRecordingStart}
-        onRecordingStop={handleRecordingStop}
+        onRecordingStart={startLiveTranscription}
+        onRecordingStop={stopLiveTranscription}
         disabled={isLoading}
       />
     </>
