@@ -11,7 +11,7 @@
 - **TTS:** VOICEVOX (CPU)
 - **リップシンク:** Viseme マッピング
 - **アバター:** Three.js + VRM
-- **DB:** PostgreSQL + Redis
+- **DB:** PostgreSQL
 - **フロントエンド:** React + Vite
 
 ## セットアップ
@@ -40,8 +40,7 @@ Docker Compose + API + フロントエンドが一括で立ち上がる。
 | faster-whisper | 8847 |
 | VOICEVOX | 50847 |
 | PostgreSQL | 5847 |
-| Redis | 6847 |
-| Vite (フロントエンド) | 5847 |
+| Vite (フロントエンド) | 5848 |
 
 ## 環境変数 (.env)
 
