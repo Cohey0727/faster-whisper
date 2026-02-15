@@ -5,6 +5,7 @@ import { VRMLoaderPlugin, VRM } from "@pixiv/three-vrm"
 import type { Viseme } from "../../../hooks/useChat"
 import { type AvatarAction, applyRestPose } from "../../../lib/avatarActions"
 import { useLipSync } from "../../../hooks/useLipSync"
+import { useIdleAnimation } from "../../../hooks/useIdleAnimation"
 import { useAvatarAction } from "../../../hooks/useAvatarAction"
 
 function disposeVrm(vrm: VRM): void {
@@ -53,7 +54,6 @@ export function AvatarModel({ visemes, audioBase64, action, modelUrl }: AvatarMo
 
         const loadedVrm = gltf.userData.vrm as VRM
         loadedVrm.scene.rotation.y = Math.PI
-        applyRestPose(loadedVrm)
 
         setVrm((prev) => {
           if (prev) {
@@ -85,6 +85,7 @@ export function AvatarModel({ visemes, audioBase64, action, modelUrl }: AvatarMo
     if (!vrm) return
 
     vrm.update(delta)
+    applyRestPose(vrm)
 
     blinkTimerRef.current -= delta
 
@@ -112,6 +113,7 @@ export function AvatarModel({ visemes, audioBase64, action, modelUrl }: AvatarMo
   })
 
   useLipSync({ vrm, audioBase64, visemes })
+  useIdleAnimation({ vrm })
   useAvatarAction({ vrm, action })
 
   if (loadError) return null

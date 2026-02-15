@@ -135,41 +135,45 @@ export function applyRotation(
 export { ACTION_ANIMATIONS } from "./avatarAnimations"
 
 /**
- * Apply a natural rest pose to a VRM model loaded in T-pose.
- * Rotates the arms down so the avatar stands naturally.
- * Must be called BEFORE any `saveInitialState` calls so that
- * the rest pose becomes the "initial" state for animations.
+ * Pre-computed rest pose rotation deltas.
+ * Applied every frame after vrm.update() to override T-pose.
+ * Allocated once to avoid per-frame GC pressure.
+ */
+const REST_POSE_BONES: readonly {
+  readonly name: string
+  readonly rotation: Quaternion
+}[] = [
+  {
+    name: "leftUpperArm",
+    rotation: new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), 1.2),
+  },
+  {
+    name: "rightUpperArm",
+    rotation: new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), -1.2),
+  },
+  {
+    name: "leftLowerArm",
+    rotation: new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -0.15),
+  },
+  {
+    name: "rightLowerArm",
+    rotation: new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), 0.15),
+  },
+]
+
+/**
+ * Apply a natural rest pose to a VRM model.
+ * Must be called every frame AFTER vrm.update() because
+ * vrm.update() resets raw bones via humanoid normalization.
+ * Action animations run in a later useFrame and override these
+ * bones when playing.
  */
 export function applyRestPose(vrm: VRM): void {
-  const leftUpperArm = getBone(vrm, "leftUpperArm")
-  const rightUpperArm = getBone(vrm, "rightUpperArm")
-  const leftLowerArm = getBone(vrm, "leftLowerArm")
-  const rightLowerArm = getBone(vrm, "rightLowerArm")
-
-  // Rotate upper arms ~70 degrees down from T-pose toward body
-  const upperArmAngle = 1.2
-  if (leftUpperArm) {
-    leftUpperArm.quaternion.multiply(
-      new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), upperArmAngle),
-    )
-  }
-  if (rightUpperArm) {
-    rightUpperArm.quaternion.multiply(
-      new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), -upperArmAngle),
-    )
-  }
-
-  // Slight bend in lower arms for a natural look
-  const lowerArmBend = 0.15
-  if (leftLowerArm) {
-    leftLowerArm.quaternion.multiply(
-      new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -lowerArmBend),
-    )
-  }
-  if (rightLowerArm) {
-    rightLowerArm.quaternion.multiply(
-      new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), lowerArmBend),
-    )
+  for (const { name, rotation } of REST_POSE_BONES) {
+    const bone = getBone(vrm, name)
+    if (bone) {
+      bone.quaternion.multiply(rotation)
+    }
   }
 }
 

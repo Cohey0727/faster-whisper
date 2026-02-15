@@ -14,6 +14,7 @@ interface AppTemplateProps {
   readonly recordButton: ReactNode;
   readonly avatar: ReactNode;
   readonly settingsButton?: ReactNode;
+  readonly debugConsole?: ReactNode;
 }
 
 const DEFAULT_PC_WIDTH = 0.4;
@@ -27,6 +28,7 @@ export function AppTemplate({
   recordButton,
   avatar,
   settingsButton,
+  debugConsole,
 }: AppTemplateProps) {
   const isDesktop = useMediaQuery("md");
   const layoutRef = useRef<HTMLDivElement>(null);
@@ -96,6 +98,7 @@ export function AppTemplate({
       </div>
       <div className={styles.avatarArea} style={avatarSize}>
         {settingsButton}
+        {debugConsole}
         {avatar}
       </div>
     </div>

@@ -1,5 +1,6 @@
 export { ChatInput } from "./ChatInput"
 export { ChatPanel } from "./ChatPanel"
+export { DebugConsole } from "./DebugConsole"
 export { RecordButton } from "./RecordButton"
 export { MicIcon } from "./MicIcon"
 export { SettingsButton } from "./SettingsButton"

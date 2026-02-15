@@ -1,8 +1,9 @@
 import { useCallback, useState } from "react"
 import { AppTemplate } from "./components/templates"
 import { AvatarCanvas, SettingsDrawer } from "./components/organisms"
-import { ChatInput, ChatPanel, RecordButton, SettingsButton } from "./components/molecules"
+import { ChatInput, ChatPanel, DebugConsole, RecordButton, SettingsButton } from "./components/molecules"
 import { useChat } from "./hooks/useChat"
+import { useDebugLog } from "./hooks/useDebugLog"
 import { useSettings } from "./hooks/useSettings"
 import { useSpeakers } from "./hooks/useSpeakers"
 import { getModelPath } from "./lib/avatarPresets"
@@ -26,6 +27,12 @@ export function App() {
     error,
     action,
   } = useChat()
+
+  const debugLog = useDebugLog({
+    action,
+    audioBase64,
+    visemeCount: visemes.length,
+  })
 
   const handleRecorded = useCallback(
     (blob: Blob) => {
@@ -63,6 +70,14 @@ export function App() {
           />
         }
         settingsButton={<SettingsButton onClick={handleOpenSettings} />}
+        debugConsole={
+          <DebugConsole
+            entries={debugLog.entries}
+            isVisible={debugLog.isVisible}
+            onToggle={debugLog.toggleVisible}
+            onClear={debugLog.clear}
+          />
+        }
         chatContent={
           <ChatPanel
             messages={messages}
